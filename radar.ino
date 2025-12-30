@@ -1,4 +1,5 @@
 #include "wifiService.h"
+#include "webSocketAPIs.h"
 #include "ultrasonicService.h"
 
 // WIFI Credentials
@@ -13,16 +14,18 @@ void setup() {
 
   registerUltrasonicSensor(TRIG_PIN, ECHO_PIN);
   setupWifiAccessPoint(WIFI_SSID, WIFI_PASS);
+  setupWebSocketAPI(); // sets up HTTP routes + WebSocket
 }
 
 void loop() {
   loopWifiAccessPoint();
+  loopWebSocketAPI();
 
   // read the distance
   static unsigned long last = 0;
   if (millis() - last >= 200) {
     last = millis();
     float d = getDistanceInCm();
-    Serial.println(String("Distance: ") + String(d) + " cm");
+    broadcastDistance(d);
   }
 }
