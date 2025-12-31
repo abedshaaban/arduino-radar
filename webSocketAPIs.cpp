@@ -1,6 +1,7 @@
 #include <WebServer.h>
 #include <WebSocketsServer.h>
 #include "webSocketAPIs.h"
+#include "htmlPage.h"
 
 // Use the HTTP server created in wifiService.cpp
 #include "wifiService.h"
@@ -9,21 +10,41 @@ extern WebServer httpServer;
 static WebSocketsServer ws(81);
 
 static void handleRoot() {
-  const char* page =
-    "<!doctype html><html><body>"
-    "<h2>ESP32 Distance</h2>"
-    "<div id='d'>---</div>"
-    "<script>"
-    "let ws=new WebSocket('ws://'+location.hostname+':81/');"
-    "ws.onmessage=e=>{document.getElementById('d').innerText=e.data;};"
-    "</script>"
-    "</body></html>";
-  httpServer.send(200, "text/html", page);
+  httpServer.send_P(200, "text/html", htmlPage);
+}
+
+static void sendState(uint8_t num) {
+  bool active = getSystemState();
+  String response = "{\"type\":\"state\",\"active\":";
+  response += active ? "true" : "false";
+  response += "}";
+  ws.sendTXT(num, response);
 }
 
 static void onWsEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t len) {
   if (type == WStype_CONNECTED) {
-    ws.sendTXT(num, "connected");
+    // Send current state when client connects
+    sendState(num);
+  } else if (type == WStype_TEXT) {
+    // Parse JSON message manually - create string with proper length
+    char* msg = (char*)malloc(len + 1);
+    if (msg) {
+      memcpy(msg, payload, len);
+      msg[len] = '\0';
+      String message = String(msg);
+      message.trim();
+      free(msg);
+      
+      // Check for toggle command
+      if (message.indexOf("\"command\":\"toggle\"") >= 0) {
+        // Toggle the state and send back the new state
+        toggleSystemState();
+        sendState(num); // Send updated state back as response
+      } else if (message.indexOf("\"command\":\"getState\"") >= 0) {
+        // Client requests current state (optional - state is sent on connect)
+        sendState(num);
+      }
+    }
   }
 }
 
@@ -44,10 +65,12 @@ void loopWebSocketAPI() {
 }
 
 void broadcastDistance(float distanceCm) {
+  String response = "{\"type\":\"distance\",\"value\":\"";
   if (distanceCm < 0) {
-    ws.broadcastTXT("no_reading");
+    response += "no_reading";
   } else {
-    // send a simple text value; can switch to JSON later
-    ws.broadcastTXT(String(distanceCm, 1) + " cm");
+    response += String(distanceCm, 1) + " cm";
   }
+  response += "\"}";
+  ws.broadcastTXT(response);
 }
