@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ESP32 Radar - Distance Monitor</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+
+      .container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        padding: 40px;
+        max-width: 500px;
+        width: 100%;
+        text-align: center;
+      }
+
+      h1 {
+        color: #333;
+        margin-bottom: 10px;
+        font-size: 2em;
+      }
+
+      .subtitle {
+        color: #666;
+        margin-bottom: 30px;
+        font-size: 0.9em;
+      }
+
+      .distance-display {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        white-space: nowrap;
+        color: white;
+        padding: 40px;
+        border-radius: 15px;
+        font-size: 3em;
+        font-weight: bold;
+        margin: 30px 0;
+        min-height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        transition: transform 0.2s;
+      }
+
+      .distance-display:hover {
+        transform: scale(1.02);
+      }
+
+      .status {
+        margin-top: 20px;
+        padding: 10px;
+        border-radius: 8px;
+        font-size: 0.9em;
+      }
+
+      .status.connected {
+        background: #d4edda;
+        color: #155724;
+      }
+
+      .status.disconnected {
+        background: #f8d7da;
+        color: #721c24;
+      }
+
+      .status.connecting {
+        background: #fff3cd;
+        color: #856404;
+      }
+
+      .toggle-button {
+        margin-top: 20px;
+        padding: 15px 40px;
+        font-size: 1.1em;
+        font-weight: bold;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .toggle-button.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .toggle-button.inactive {
+        background: #e0e0e0;
+        color: #666;
+      }
+
+      .toggle-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      }
+
+      .toggle-button:active {
+        transform: translateY(0);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>ESP32 Radar</h1>
+      <p class="subtitle">Real-time Distance Monitoring</p>
+      <div class="distance-display" id="distance">---</div>
+      <button class="toggle-button inactive" id="toggleBtn">
+        Start System
+      </button>
+      <div class="status connecting" id="status">Connecting...</div>
+    </div>
+
+    <script>
+      const distanceEl = document.getElementById("distance");
+      const statusEl = document.getElementById("status");
+      const toggleBtn = document.getElementById("toggleBtn");
+      let systemActive = false;
+      const ws = new WebSocket("ws://" + location.hostname + ":81/");
+
+      function updateButtonState(active) {
+        systemActive = active;
+        if (active) {
+          toggleBtn.textContent = "Stop System";
+          toggleBtn.className = "toggle-button active";
+        } else {
+          toggleBtn.textContent = "Start System";
+          toggleBtn.className = "toggle-button inactive";
+          // Reset distance display when system becomes inactive
+          distanceEl.textContent = "---";
+        }
+      }
+
+      toggleBtn.addEventListener("click", () => {
+        ws.send(JSON.stringify({ command: "toggle" }));
+      });
+
+      ws.onopen = () => {
+        statusEl.textContent = "Connected";
+        statusEl.className = "status connected";
+        // State will be sent automatically by server on connection
+      };
+
+      ws.onclose = () => {
+        statusEl.textContent = "Disconnected";
+        statusEl.className = "status disconnected";
+      };
+
+      ws.onerror = () => {
+        statusEl.textContent = "Connection Error";
+        statusEl.className = "status disconnected";
+      };
+
+      ws.onmessage = (e) => {
+        try {
+          const data = JSON.parse(e.data);
+          if (data.type === "state") {
+            updateButtonState(data.active);
+          } else if (data.type === "distance") {
+            distanceEl.textContent = data.value;
+          }
+        } catch (err) {
+          // Fallback: treat as plain distance string
+          distanceEl.textContent = e.data;
+        }
+      };
+    </script>
+  </body>
+</html>
