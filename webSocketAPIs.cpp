@@ -17,11 +17,14 @@ static void handleRoot() {
 static void sendState(uint8_t num) {
   bool active = getSystemState();
   bool rotationEnabled = getServoRotationEnabled();
-  String response = "{\"type\":\"state\",\"active\":";
-  response += active ? "true" : "false";
-  response += ",\"rotationEnabled\":";
-  response += rotationEnabled ? "true" : "false";
-  response += "}";
+  
+  StaticJsonDocument<128> doc;
+  doc["type"] = "state";
+  doc["active"] = active;
+  doc["rotationEnabled"] = rotationEnabled;
+  
+  String response;
+  serializeJson(doc, response);
   ws.sendTXT(num, response);
 }
 
@@ -75,7 +78,6 @@ static void onWsEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t len) 
   }
 }
 
-
 void setupWebSocketAPI() {
   // HTTP routes
   httpServer.on("/", handleRoot);
@@ -93,20 +95,19 @@ void loopWebSocketAPI() {
 }
 
 void broadcastDistance(float distanceCm, float angle) {
-  String response = "{\"type\":\"distance\",\"value\":\"";
+  StaticJsonDocument<256> doc;
+  doc["type"] = "distance";
+  doc["angle"] = angle;
+  
   if (distanceCm < 0) {
-    response += "no_reading";
+    doc["value"] = "no_reading";
+    doc["distance"] = -1;
   } else {
-    response += String(distanceCm, 1) + " cm";
+    doc["value"] = String(distanceCm, 1) + " cm";
+    doc["distance"] = distanceCm;
   }
-  response += "\",\"angle\":";
-  response += String(angle, 1);
-  response += ",\"distance\":";
-  if (distanceCm < 0) {
-    response += "-1";
-  } else {
-    response += String(distanceCm, 1);
-  }
-  response += "}";
+  
+  String response;
+  serializeJson(doc, response);
   ws.broadcastTXT(response);
 }
