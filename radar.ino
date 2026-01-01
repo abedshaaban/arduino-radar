@@ -22,8 +22,9 @@ bool servoRotationEnabled = true; // Enable automatic rotation by default
 float servoPosition = 90;
 int servoDirection = 1; // 1 for forward (0->180), -1 for backward (180->0)
 unsigned long lastServoMove = 0;
-const unsigned long SERVO_MOVE_INTERVAL = 20; // milliseconds between servo moves
+const unsigned long SERVO_MOVE_INTERVAL = 20; // milliseconds between servo moves (base interval)
 const float SERVO_STEP = 3; // degrees per step
+float servoSpeedMultiplier = 1.0; // Speed multiplier: 0.5x (slow) to 2.0x (fast)
 
 // Functions for WebSocket API to access system state
 bool getSystemState() {
@@ -56,6 +57,19 @@ void setServoPosition(float angle) {
   servo.write((int)servoPosition);
   Serial.print("Servo position set to: ");
   Serial.println(servoPosition);
+}
+
+float getServoSpeedMultiplier() {
+  return servoSpeedMultiplier;
+}
+
+void setServoSpeedMultiplier(float multiplier) {
+  // Clamp multiplier between 0.5 and 2.0
+  if (multiplier < 0.5) multiplier = 0.5;
+  if (multiplier > 2.0) multiplier = 2.0;
+  servoSpeedMultiplier = multiplier;
+  Serial.print("Servo speed multiplier set to: ");
+  Serial.println(servoSpeedMultiplier);
 }
 
 void setup() {
@@ -91,23 +105,28 @@ void loop() {
 
 void rotateServo() {
   // Non-blocking servo rotation - only moves one step per call
+  //
+  // IMPORTANT: Most hobby servos refresh at ~50Hz (~20ms). If you try to update
+  // faster than that, you typically won't see more speed. So we keep the interval
+  // at the refresh rate and scale the *step size* instead.
   unsigned long now = millis();
-  if (now - lastServoMove >= SERVO_MOVE_INTERVAL) {
-    lastServoMove = now;
-    
-    // Update position based on direction
-    servoPosition += servoDirection * SERVO_STEP;
-    
-    // Reverse direction at limits
-    if (servoPosition >= 180) {
-      servoPosition = 180;
-      servoDirection = -1;
-    } else if (servoPosition <= 0) {
-      servoPosition = 0;
-      servoDirection = 1;
-    }
-    
-    // Move servo to new position
-    servo.write((int)servoPosition);
+  if (now - lastServoMove < SERVO_MOVE_INTERVAL) return;
+  lastServoMove = now;
+
+  float step = SERVO_STEP * servoSpeedMultiplier; // 0.5x -> smaller step, 2x -> bigger step
+
+  // Update position based on direction
+  servoPosition += servoDirection * step;
+
+  // Reverse direction at limits
+  if (servoPosition >= 180) {
+    servoPosition = 180;
+    servoDirection = -1;
+  } else if (servoPosition <= 0) {
+    servoPosition = 0;
+    servoDirection = 1;
   }
+
+  // Move servo to new position
+  servo.write((int)servoPosition);
 }
