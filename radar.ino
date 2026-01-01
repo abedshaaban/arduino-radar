@@ -19,7 +19,7 @@ bool systemActive = false;
 bool servoRotationEnabled = true; // Enable automatic rotation by default
 
 // Servo rotation state (non-blocking)
-float servoPosition = 0;
+float servoPosition = 90;
 int servoDirection = 1; // 1 for forward (0->180), -1 for backward (180->0)
 unsigned long lastServoMove = 0;
 const unsigned long SERVO_MOVE_INTERVAL = 20; // milliseconds between servo moves
@@ -62,7 +62,7 @@ void setup() {
   Serial.begin(115200);
 
   servo.attach(SERVO_PIN);
-  servo.write(0);
+  servo.write(servoPosition);
 
   registerUltrasonicSensor(TRIG_PIN, ECHO_PIN);
   setupWifiAccessPoint(WIFI_SSID, WIFI_PASS);
