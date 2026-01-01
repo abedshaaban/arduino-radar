@@ -134,11 +134,11 @@
     </div>
 
     <script>
+      let systemActive = false;
       const distanceEl = document.getElementById("distance");
       const statusEl = document.getElementById("status");
       const toggleBtn = document.getElementById("toggleBtn");
-      let systemActive = false;
-      const ws = new WebSocket("ws://" + location.hostname + ":81/");
+      const ws = new WebSocket(`ws://${location.hostname}:81/`);
 
       function updateButtonState(active) {
         systemActive = active;
