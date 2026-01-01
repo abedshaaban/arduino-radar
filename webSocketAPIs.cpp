@@ -1,6 +1,7 @@
 #include <WebServer.h>
 #include <WebSocketsServer.h>
 #include "webSocketAPIs.h"
+#include <ArduinoJson.h>
 #include "htmlPage.h"
 
 // Use the HTTP server created in wifiService.cpp
@@ -22,31 +23,42 @@ static void sendState(uint8_t num) {
 }
 
 static void onWsEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t len) {
-  if (type == WStype_CONNECTED) {
-    // Send current state when client connects
-    sendState(num);
-  } else if (type == WStype_TEXT) {
-    // Parse JSON message manually - create string with proper length
-    char* msg = (char*)malloc(len + 1);
-    if (msg) {
-      memcpy(msg, payload, len);
-      msg[len] = '\0';
-      String message = String(msg);
-      message.trim();
-      free(msg);
+  switch (type) {
+    case WStype_CONNECTED:
+      sendState(num);
+      break;
+
+    case WStype_TEXT: {
+      // payload is NOT guaranteed null-terminated, so parse with length
+      StaticJsonDocument<256> doc;  // adjust if your JSON is bigger
+
+      DeserializationError err = deserializeJson(doc, payload, len);
+      if (err) {
+        Serial.print("WS JSON parse error: ");
+        Serial.println(err.c_str());
+        return;
+      }
       
-      // Check for toggle command
-      if (message.indexOf("\"command\":\"toggle\"") >= 0) {
-        // Toggle the state and send back the new state
+      const char* cmd = doc["command"];
+      if (!cmd) return;
+
+      Serial.print("Message received: ");
+      Serial.println(cmd);
+
+      if (strcmp(cmd, "toggle") == 0) {
         toggleSystemState();
-        sendState(num); // Send updated state back as response
-      } else if (message.indexOf("\"command\":\"getState\"") >= 0) {
-        // Client requests current state (optional - state is sent on connect)
+        sendState(num);
+      } else if (strcmp(cmd, "getState") == 0) {
         sendState(num);
       }
+      break;
     }
+
+    default:
+      break;
   }
 }
+
 
 void setupWebSocketAPI() {
   // HTTP routes
