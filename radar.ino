@@ -22,7 +22,7 @@ float servoPosition = 0;
 int servoDirection = 1; // 1 for forward (0->180), -1 for backward (180->0)
 unsigned long lastServoMove = 0;
 const unsigned long SERVO_MOVE_INTERVAL = 20; // milliseconds between servo moves
-const float SERVO_STEP = 0.5; // degrees per step
+const float SERVO_STEP = 3; // degrees per step
 
 // Functions for WebSocket API to access system state
 bool getSystemState() {
