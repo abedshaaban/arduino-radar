@@ -812,6 +812,26 @@ const char htmlPage[] PROGMEM = R"rawliteral(
           <div class="servo-slider-value" id="distanceThresholdValue">400 cm</div>
         </div>
       </div>
+
+      <div class="servo-control-container">
+        <div class="servo-slider-container" id="servoSpeedContainer">
+          <div class="servo-slider-label">Rotation Speed</div>
+          <div class="servo-slider-track">
+            <span style="font-size: 0.85em; color: #64748b; white-space: nowrap; flex-shrink: 0; display: inline-block;">0.5x</span>
+            <input
+              type="range"
+              min="0.5"
+              max="2.0"
+              step="0.1"
+              value="1.0"
+              class="servo-slider"
+              id="servoSpeedSlider"
+            />
+            <span style="font-size: 0.85em; color: #64748b; white-space: nowrap; flex-shrink: 0; display: inline-block;">2.0x</span>
+          </div>
+          <div class="servo-slider-value" id="servoSpeedValue">1.0x</div>
+        </div>
+      </div>
     </div>
 
     <script>
@@ -827,6 +847,8 @@ const char htmlPage[] PROGMEM = R"rawliteral(
       const servoSlider = document.getElementById("servoSlider");
       const distanceThresholdSlider = document.getElementById("distanceThresholdSlider");
       const distanceThresholdValueEl = document.getElementById("distanceThresholdValue");
+      const servoSpeedSlider = document.getElementById("servoSpeedSlider");
+      const servoSpeedValueEl = document.getElementById("servoSpeedValue");
       const ws = new WebSocket("ws://" + location.hostname + ":81/");
 
       // Radar canvas setup
@@ -879,7 +901,7 @@ const char htmlPage[] PROGMEM = R"rawliteral(
         }, 200);
       });
 
-      function updateButtonState(active, rotationEnabledState) {
+      function updateButtonState(active, rotationEnabledState, speedMultiplier) {
         systemActive = active;
         if (active) {
           toggleBtn.textContent = "Stop System";
@@ -898,6 +920,12 @@ const char htmlPage[] PROGMEM = R"rawliteral(
           rotationEnabled = rotationEnabledState;
         }
         updateRotationToggle();
+        
+        // Update speed multiplier if provided
+        if (speedMultiplier !== undefined) {
+          servoSpeedSlider.value = speedMultiplier;
+          servoSpeedValueEl.textContent = parseFloat(speedMultiplier).toFixed(1) + "x";
+        }
       }
 
       function updateRotationToggle() {
@@ -1237,9 +1265,42 @@ const char htmlPage[] PROGMEM = R"rawliteral(
       // Initialize distance threshold display
       updateDistanceThreshold(400);
 
+      // Servo speed slider handler
+      let speedTouched = false;
+      function updateServoSpeed(value) {
+        const multiplier = parseFloat(value);
+        servoSpeedValueEl.textContent = multiplier.toFixed(1) + "x";
+        speedTouched = true;
+
+        // Send to server ONLY if websocket is open (avoids InvalidStateError during CONNECTING)
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(
+            JSON.stringify({ command: "setServoSpeed", multiplier: multiplier })
+          );
+        }
+      }
+
+      // Handle servo speed slider input (while dragging)
+      servoSpeedSlider.addEventListener("input", function(e) {
+        updateServoSpeed(e.target.value);
+      });
+
+      // Handle servo speed slider change (when released)
+      servoSpeedSlider.addEventListener("change", function(e) {
+        updateServoSpeed(e.target.value);
+      });
+
+      // Initialize servo speed display
+      servoSpeedSlider.value = "1.0";
+      servoSpeedValueEl.textContent = "1.0x";
+
       ws.onopen = function() {
         statusEl.textContent = "Connected";
         statusEl.className = "status connected";
+        // If user moved the slider while still connecting, push the latest value now.
+        if (speedTouched) {
+          updateServoSpeed(servoSpeedSlider.value);
+        }
         // State will be sent automatically by server on connection
       };
 
@@ -1257,7 +1318,7 @@ const char htmlPage[] PROGMEM = R"rawliteral(
         try {
           const data = JSON.parse(e.data);
           if (data.type === "state") {
-            updateButtonState(data.active, data.rotationEnabled);
+            updateButtonState(data.active, data.rotationEnabled, data.speedMultiplier);
           } else if (data.type === "distance") {
             distanceEl.textContent = data.value;
 
