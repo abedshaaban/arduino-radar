@@ -496,6 +496,7 @@ const char htmlPage[] PROGMEM = R"rawliteral(
         align-items: center;
         gap: 15px;
         margin-top: 10px;
+        flex-wrap: nowrap;
       }
 
       .servo-slider-value {
@@ -504,6 +505,68 @@ const char htmlPage[] PROGMEM = R"rawliteral(
         font-weight: 700;
         color: #1e293b;
         font-size: 1.1em;
+      }
+
+      .distance-threshold-slider {
+        width: 100%;
+        height: 8px;
+        border-radius: 5px;
+        background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        outline: none;
+        -webkit-appearance: none;
+        appearance: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .distance-threshold-slider:hover {
+        background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
+      }
+
+      /* Webkit (Chrome, Safari, Edge) */
+      .distance-threshold-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        cursor: grab;
+        border: 3px solid white;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        transition: all 0.2s ease;
+      }
+
+      .distance-threshold-slider::-webkit-slider-thumb:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(16, 185, 129, 0.6);
+      }
+
+      .distance-threshold-slider::-webkit-slider-thumb:active {
+        cursor: grabbing;
+        transform: scale(1.15);
+      }
+
+      /* Firefox */
+      .distance-threshold-slider::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        cursor: grab;
+        border: 3px solid white;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        transition: all 0.2s ease;
+      }
+
+      .distance-threshold-slider::-moz-range-thumb:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(16, 185, 129, 0.6);
+      }
+
+      .distance-threshold-slider::-moz-range-thumb:active {
+        cursor: grabbing;
+        transform: scale(1.15);
       }
 
       @media (max-width: 480px) {
@@ -704,11 +767,7 @@ const char htmlPage[] PROGMEM = R"rawliteral(
           </div>
           <div class="info-item">
             <span class="info-label">Max Range</span>
-            <span class="info-value">200 cm</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Targets</span>
-            <span class="info-value" id="targetCount">0</span>
+            <span class="info-value" id="maxRangeDisplay">400 cm</span>
           </div>
         </div>
       </div>
@@ -720,7 +779,7 @@ const char htmlPage[] PROGMEM = R"rawliteral(
         <div class="servo-slider-container" id="servoSliderContainer">
           <div class="servo-slider-label">Manual Servo Control</div>
           <div class="servo-slider-track">
-            <span style="font-size: 0.85em; color: #64748b;">0°</span>
+            <span style="font-size: 0.85em; color: #64748b; white-space: nowrap; flex-shrink: 0; display: inline-block;">0°</span>
             <input
               type="range"
               min="0"
@@ -729,9 +788,28 @@ const char htmlPage[] PROGMEM = R"rawliteral(
               class="servo-slider"
               id="servoSlider"
             />
-            <span style="font-size: 0.85em; color: #64748b;">180°</span>
+            <span style="font-size: 0.85em; color: #64748b; white-space: nowrap; flex-shrink: 0; display: inline-block;">180°</span>
           </div>
           <div class="servo-slider-value" id="manualAngle">90°</div>
+        </div>
+      </div>
+
+      <div class="servo-control-container">
+        <div class="servo-slider-container" id="distanceThresholdContainer">
+          <div class="servo-slider-label">Distance Threshold</div>
+          <div class="servo-slider-track">
+            <span style="font-size: 0.85em; color: #64748b; white-space: nowrap; flex-shrink: 0; display: inline-block;">5 cm</span>
+            <input
+              type="range"
+              min="5"
+              max="400"
+              value="400"
+              class="distance-threshold-slider"
+              id="distanceThresholdSlider"
+            />
+            <span style="font-size: 0.85em; color: #64748b; white-space: nowrap; flex-shrink: 0; display: inline-block;">400 cm</span>
+          </div>
+          <div class="servo-slider-value" id="distanceThresholdValue">400 cm</div>
         </div>
       </div>
     </div>
@@ -744,16 +822,18 @@ const char htmlPage[] PROGMEM = R"rawliteral(
       const toggleBtn = document.getElementById("toggleBtn");
       const rotationToggleBtn = document.getElementById("rotationToggleBtn");
       const currentAngleEl = document.getElementById("currentAngle");
-      const targetCountEl = document.getElementById("targetCount");
+      const maxRangeDisplayEl = document.getElementById("maxRangeDisplay");
       const manualAngleEl = document.getElementById("manualAngle");
       const servoSlider = document.getElementById("servoSlider");
+      const distanceThresholdSlider = document.getElementById("distanceThresholdSlider");
+      const distanceThresholdValueEl = document.getElementById("distanceThresholdValue");
       const ws = new WebSocket("ws://" + location.hostname + ":81/");
 
       // Radar canvas setup
       const canvas = document.getElementById("radarCanvas");
       const ctx = canvas.getContext("2d");
 
-      const maxRange = 200; // cm
+      let maxRange = 400; // cm - default max range, can be changed via slider
 
       // Store detected targets with timestamps for fading
       let targets = [];
@@ -811,7 +891,6 @@ const char htmlPage[] PROGMEM = R"rawliteral(
           distanceEl.textContent = "---";
           // Clear targets when system stops
           targets = [];
-          targetCountEl.textContent = "0";
         }
 
         // Update rotation state if provided
@@ -854,13 +933,14 @@ const char htmlPage[] PROGMEM = R"rawliteral(
           ctx.stroke();
         }
 
-        // Draw angle lines (0°, 45°, 90°, 135°, 180°) - rotated 90° counter-clockwise
+        // Draw angle lines (0°, 45°, 90°, 135°, 180°) - rotated 90° counter-clockwise and horizontally mirrored
         ctx.strokeStyle = "rgba(0, 255, 0, 0.25)";
         ctx.lineWidth = 1;
         const angles = [0, 45, 90, 135, 180];
         angles.forEach(function(angle) {
-          // Rotate 90° counter-clockwise: subtract 90 from angle
-          const rad = ((angle - 90 - 90) * Math.PI) / 180;
+          // Horizontally mirror: 180 - angle, then rotate 90° counter-clockwise
+          const mirroredAngle = 180 - angle;
+          const rad = ((mirroredAngle - 90 - 90) * Math.PI) / 180;
           ctx.beginPath();
           ctx.moveTo(currentCenterX, currentCenterY);
           ctx.lineTo(
@@ -870,14 +950,15 @@ const char htmlPage[] PROGMEM = R"rawliteral(
           ctx.stroke();
         });
 
-        // Draw angle labels (responsive font size) - rotated 90° counter-clockwise
+        // Draw angle labels (responsive font size) - rotated 90° counter-clockwise and horizontally mirrored
         const fontSize = Math.max(10, Math.min(13, currentMaxRadius / 20));
         ctx.font = "bold " + fontSize + "px monospace";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         angles.forEach(function(angle) {
-          // Rotate 90° counter-clockwise: subtract 90 from angle
-          const rad = ((angle - 90 - 90) * Math.PI) / 180;
+          // Horizontally mirror: 180 - angle, then rotate 90° counter-clockwise
+          const mirroredAngle = 180 - angle;
+          const rad = ((mirroredAngle - 90 - 90) * Math.PI) / 180;
           const labelOffset =
             currentMaxRadius + Math.max(12, currentMaxRadius / 20);
           const labelX = currentCenterX + Math.cos(rad) * labelOffset;
@@ -896,7 +977,7 @@ const char htmlPage[] PROGMEM = R"rawliteral(
           ctx.fillText(angle + "°", labelX, labelY);
         });
 
-        // Draw distance labels (responsive font size)
+        // Draw distance labels (responsive font size) - dynamic based on maxRange
         const distanceFontSize = Math.max(
           8,
           Math.min(11, currentMaxRadius / 25)
@@ -906,11 +987,11 @@ const char htmlPage[] PROGMEM = R"rawliteral(
         ctx.textBaseline = "middle";
         for (let i = 1; i <= 4; i++) {
           const radius = (currentMaxRadius * i) / 4;
-          const distance = (maxRange * i) / 4;
+          const distance = Math.round((maxRange * i) / 4);
           const labelX =
             currentCenterX + radius - Math.max(20, currentMaxRadius / 15);
           const labelY = currentCenterY - 8;
-          const labelWidth = distanceFontSize * 3.5;
+          const labelWidth = distanceFontSize * (distance >= 100 ? 4 : 3.5);
           const labelHeight = distanceFontSize * 1.5;
           // Add background for better readability
           ctx.fillStyle = "rgba(10, 14, 39, 0.7)";
@@ -924,9 +1005,11 @@ const char htmlPage[] PROGMEM = R"rawliteral(
           ctx.fillText(distance + "cm", labelX, labelY);
         }
 
-        // Draw sweep line - rotated 90° counter-clockwise
+        // Draw sweep line - rotated 90° counter-clockwise and horizontally mirrored
         if (systemActive) {
-          const sweepRad = ((sweepAngle - 90 - 90) * Math.PI) / 180;
+          // Horizontally mirror: 180 - sweepAngle, then rotate 90° counter-clockwise
+          const mirroredSweepAngle = 180 - sweepAngle;
+          const sweepRad = ((mirroredSweepAngle - 90 - 90) * Math.PI) / 180;
 
           // Draw sweep arc (trail) - wider and more visible
           ctx.strokeStyle = "rgba(0, 255, 0, 0.15)";
@@ -972,8 +1055,15 @@ const char htmlPage[] PROGMEM = R"rawliteral(
 
           if (opacity <= 0) return false;
 
-          // Rotate target angle 90° counter-clockwise
-          const angleRad = ((target.angle - 90 - 90) * Math.PI) / 180;
+          // Horizontally mirror target angle, then rotate 90° counter-clockwise
+          // Only show targets within the distance threshold
+          if (target.distance > maxRange || target.distance < 5) {
+            return false; // Filter out targets outside threshold range
+          }
+          
+          // Horizontally mirror: 180 - angle, then rotate 90° counter-clockwise
+          const mirroredTargetAngle = 180 - target.angle;
+          const angleRad = ((mirroredTargetAngle - 90 - 90) * Math.PI) / 180;
           const distanceRatio = Math.min(target.distance / maxRange, 1);
           const radius = distanceRatio * currentMaxRadius;
 
@@ -1013,9 +1103,6 @@ const char htmlPage[] PROGMEM = R"rawliteral(
 
           return true;
         });
-
-        // Update target count
-        targetCountEl.textContent = targets.length;
 
         // Center dot with glow
         const centerGradient = ctx.createRadialGradient(
@@ -1119,6 +1206,37 @@ const char htmlPage[] PROGMEM = R"rawliteral(
         }
       });
 
+      // Distance threshold slider handler
+      function updateDistanceThreshold(value) {
+        maxRange = parseFloat(value);
+        distanceThresholdValueEl.textContent = Math.round(maxRange) + " cm";
+        maxRangeDisplayEl.textContent = Math.round(maxRange) + " cm";
+        
+        // Filter existing targets to remove those outside threshold
+        const now = Date.now();
+        targets = targets.filter(function(target) {
+          const age = now - target.timestamp;
+          const fadeTime = 5000;
+          const opacity = Math.max(0, 1 - age / fadeTime);
+          
+          // Remove targets outside threshold or faded out
+          return opacity > 0 && target.distance <= maxRange && target.distance >= 5;
+        });
+      }
+
+      // Handle distance threshold slider input (while dragging)
+      distanceThresholdSlider.addEventListener("input", function(e) {
+        updateDistanceThreshold(e.target.value);
+      });
+
+      // Handle distance threshold slider change (when released)
+      distanceThresholdSlider.addEventListener("change", function(e) {
+        updateDistanceThreshold(e.target.value);
+      });
+
+      // Initialize distance threshold display
+      updateDistanceThreshold(400);
+
       ws.onopen = function() {
         statusEl.textContent = "Connected";
         statusEl.className = "status connected";
@@ -1156,8 +1274,8 @@ const char htmlPage[] PROGMEM = R"rawliteral(
                 lastSentAngle = data.angle; // Sync last sent angle
               }
 
-              // Add target if valid reading
-              if (data.distance > 0 && data.distance <= maxRange) {
+              // Add target if valid reading and within threshold (5cm to maxRange)
+              if (data.distance > 0 && data.distance >= 5 && data.distance <= maxRange) {
                 targets.push({
                   angle: data.angle,
                   distance: data.distance,
