@@ -23,5 +23,5 @@ float getDistanceInCm() {
   unsigned long duration = pulseIn(g_echo, HIGH, 30000UL);
   if (duration == 0) return -1;
 
-  return (duration * 0.0343f) / 2.0f;
+  return (duration * 0.0343) / 2.0;
 }
