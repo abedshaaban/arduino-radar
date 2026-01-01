@@ -17,15 +17,33 @@ static void handleRoot() {
 static void sendState(uint8_t num) {
   bool active = getSystemState();
   bool rotationEnabled = getServoRotationEnabled();
+  float speedMultiplier = getServoSpeedMultiplier();
   
-  StaticJsonDocument<128> doc;
+  StaticJsonDocument<192> doc;
   doc["type"] = "state";
   doc["active"] = active;
   doc["rotationEnabled"] = rotationEnabled;
+  doc["speedMultiplier"] = speedMultiplier;
   
   String response;
   serializeJson(doc, response);
   ws.sendTXT(num, response);
+}
+
+static void broadcastState() {
+  bool active = getSystemState();
+  bool rotationEnabled = getServoRotationEnabled();
+  float speedMultiplier = getServoSpeedMultiplier();
+  
+  StaticJsonDocument<192> doc;
+  doc["type"] = "state";
+  doc["active"] = active;
+  doc["rotationEnabled"] = rotationEnabled;
+  doc["speedMultiplier"] = speedMultiplier;
+  
+  String response;
+  serializeJson(doc, response);
+  ws.broadcastTXT(response);
 }
 
 static void onWsEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t len) {
@@ -66,6 +84,13 @@ static void onWsEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t len) 
           // Also broadcast a distance update with current position (even if system inactive)
           // This ensures the radar display updates when manually positioning
           broadcastDistance(-1, angle); // -1 means no distance reading, just position update
+        }
+      } else if (strcmp(cmd, "setServoSpeed") == 0) {
+        if (doc.containsKey("multiplier")) {
+          float multiplier = doc["multiplier"];
+          setServoSpeedMultiplier(multiplier);
+          // Broadcast updated state to all clients
+          broadcastState();
         }
       } else if (strcmp(cmd, "getState") == 0) {
         sendState(num);

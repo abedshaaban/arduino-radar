@@ -11,3 +11,5 @@ bool toggleSystemState();
 bool getServoRotationEnabled();
 bool toggleServoRotation();
 void setServoPosition(float angle);
+float getServoSpeedMultiplier();
+void setServoSpeedMultiplier(float multiplier);
