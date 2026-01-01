@@ -3,7 +3,7 @@
 
 void setupWebSocketAPI();
 void loopWebSocketAPI();
-void broadcastDistance(float distanceCm);
+void broadcastDistance(float distanceCm, float angle);
 
 // Callback functions that radar.ino must implement
 bool getSystemState();
