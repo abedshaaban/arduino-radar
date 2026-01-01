@@ -59,7 +59,7 @@ void loop() {
     if (millis() - last >= 300) {
       last = millis();
       float d = getDistanceInCm();
-      broadcastDistance(d);
+      broadcastDistance(d, servoPosition);
     }
   }
 }
