@@ -16,6 +16,7 @@ Servo servo;
 
 // System state - all logic and state management in radar.ino
 bool systemActive = false;
+bool servoRotationEnabled = true; // Enable automatic rotation by default
 
 // Servo rotation state (non-blocking)
 float servoPosition = 0;
@@ -36,6 +37,27 @@ bool toggleSystemState() {
   return systemActive;
 }
 
+bool getServoRotationEnabled() {
+  return servoRotationEnabled;
+}
+
+bool toggleServoRotation() {
+  servoRotationEnabled = !servoRotationEnabled;
+  Serial.print("Servo rotation toggled to: ");
+  Serial.println(servoRotationEnabled ? "ENABLED" : "DISABLED");
+  return servoRotationEnabled;
+}
+
+void setServoPosition(float angle) {
+  // Clamp angle between 0 and 180
+  if (angle < 0) angle = 0;
+  if (angle > 180) angle = 180;
+  servoPosition = angle;
+  servo.write((int)servoPosition);
+  Serial.print("Servo position set to: ");
+  Serial.println(servoPosition);
+}
+
 void setup() {
   Serial.begin(115200);
 
@@ -52,7 +74,10 @@ void loop() {
   loopWebSocketAPI();
 
   if(systemActive){
-    rotateServo();
+    // Only rotate servo if rotation is enabled
+    if (servoRotationEnabled) {
+      rotateServo();
+    }
 
     // read the distance and broadcast
     static unsigned long last = 0;
