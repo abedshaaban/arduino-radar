@@ -76,13 +76,21 @@ void loopWebSocketAPI() {
   ws.loop();
 }
 
-void broadcastDistance(float distanceCm) {
+void broadcastDistance(float distanceCm, float angle) {
   String response = "{\"type\":\"distance\",\"value\":\"";
   if (distanceCm < 0) {
     response += "no_reading";
   } else {
     response += String(distanceCm, 1) + " cm";
   }
-  response += "\"}";
+  response += "\",\"angle\":";
+  response += String(angle, 1);
+  response += ",\"distance\":";
+  if (distanceCm < 0) {
+    response += "-1";
+  } else {
+    response += String(distanceCm, 1);
+  }
+  response += "}";
   ws.broadcastTXT(response);
 }
