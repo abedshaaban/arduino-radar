@@ -151,15 +151,17 @@
       }
 
       .status {
-        margin-top: 25px;
-        padding: 12px 20px;
-        border-radius: 12px;
-        font-size: 0.9em;
+        padding: 10px 18px;
+        border-radius: 10px;
+        font-size: 0.85em;
         font-weight: 600;
         display: inline-flex;
         align-items: center;
         gap: 8px;
         transition: all 0.3s ease;
+        width: 100%;
+        max-width: 280px;
+        justify-content: center;
       }
 
       .status::before {
@@ -212,10 +214,17 @@
         background: #ffc107;
       }
 
+      .header-controls {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 30px;
+      }
+
       .toggle-button {
-        margin-top: 25px;
-        padding: 16px 45px;
-        font-size: 1.15em;
+        padding: 14px 40px;
+        font-size: 1.1em;
         font-weight: 600;
         border: none;
         border-radius: 12px;
@@ -224,6 +233,8 @@
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
         position: relative;
         overflow: hidden;
+        width: 100%;
+        max-width: 280px;
       }
 
       .toggle-button::before {
@@ -341,6 +352,166 @@
         margin-top: 2px;
       }
 
+      .servo-control-container {
+        margin: 25px 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .rotation-toggle-button {
+        padding: 12px 30px;
+        font-size: 1em;
+        font-weight: 600;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        color: #475569;
+      }
+
+      .rotation-toggle-button.enabled {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+      }
+
+      .rotation-toggle-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      .rotation-toggle-button.enabled:hover {
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
+      }
+
+      .rotation-toggle-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .servo-slider-container {
+        position: relative;
+        width: 100%;
+        max-width: 400px;
+        margin: 20px 0;
+        padding: 0 10px;
+      }
+
+      .servo-slider-label {
+        text-align: center;
+        margin-bottom: 15px;
+        font-size: 0.9em;
+        color: #64748b;
+        font-weight: 600;
+      }
+
+      .servo-slider {
+        width: 100%;
+        height: 8px;
+        border-radius: 5px;
+        background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        outline: none;
+        -webkit-appearance: none;
+        appearance: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .servo-slider:hover {
+        background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
+      }
+
+      .servo-slider:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      /* Webkit (Chrome, Safari, Edge) */
+      .servo-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        cursor: grab;
+        border: 3px solid white;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        transition: all 0.2s ease;
+      }
+
+      .servo-slider::-webkit-slider-thumb:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
+      }
+
+      .servo-slider::-webkit-slider-thumb:active {
+        cursor: grabbing;
+        transform: scale(1.15);
+      }
+
+      .servo-slider:disabled::-webkit-slider-thumb {
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+
+      /* Firefox */
+      .servo-slider::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        cursor: grab;
+        border: 3px solid white;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        transition: all 0.2s ease;
+      }
+
+      .servo-slider::-moz-range-thumb:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
+      }
+
+      .servo-slider::-moz-range-thumb:active {
+        cursor: grabbing;
+        transform: scale(1.15);
+      }
+
+      .servo-slider:disabled::-moz-range-thumb {
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+
+      .servo-slider-track {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-top: 10px;
+      }
+
+      .servo-slider-value {
+        min-width: 50px;
+        text-align: center;
+        font-weight: 700;
+        color: #1e293b;
+        font-size: 1.1em;
+      }
+
+      @media (max-width: 480px) {
+        .rotation-toggle-button {
+          padding: 10px 25px;
+          font-size: 0.9em;
+        }
+
+        .servo-slider-container {
+          max-width: 100%;
+        }
+      }
+
       @media (max-width: 768px) {
         body {
           padding: 10px;
@@ -401,18 +572,20 @@
           font-size: 1em;
         }
 
+        .header-controls {
+          margin-bottom: 25px;
+        }
+
         .toggle-button {
-          padding: 14px 35px;
+          padding: 12px 30px;
           font-size: 1em;
-          margin-top: 20px;
-          width: 100%;
-          max-width: 300px;
+          max-width: 100%;
         }
 
         .status {
-          margin-top: 20px;
-          padding: 10px 18px;
-          font-size: 0.85em;
+          padding: 10px 15px;
+          font-size: 0.8em;
+          max-width: 100%;
         }
       }
 
@@ -468,15 +641,21 @@
           margin-top: 0;
         }
 
+        .header-controls {
+          margin-bottom: 20px;
+          gap: 10px;
+        }
+
         .toggle-button {
-          padding: 12px 30px;
+          padding: 12px 25px;
           font-size: 0.95em;
-          width: 100%;
+          max-width: 100%;
         }
 
         .status {
-          font-size: 0.8em;
-          padding: 10px 15px;
+          font-size: 0.75em;
+          padding: 8px 12px;
+          max-width: 100%;
         }
       }
 
@@ -501,6 +680,14 @@
     <div class="container">
       <h1>ESP32 Radar</h1>
       <p class="subtitle">Real-time Distance Monitoring</p>
+
+      <div class="header-controls">
+        <button class="toggle-button inactive" id="toggleBtn">
+          Start System
+        </button>
+        <div class="status connecting" id="status">Connecting...</div>
+      </div>
+
       <div class="distance-display" id="distance">---</div>
 
       <div class="radar-container">
@@ -521,19 +708,40 @@
         </div>
       </div>
 
-      <button class="toggle-button inactive" id="toggleBtn">
-        Start System
-      </button>
-      <div class="status connecting" id="status">Connecting...</div>
+      <div class="servo-control-container">
+        <button class="rotation-toggle-button enabled" id="rotationToggleBtn">
+          Auto Rotation: ON
+        </button>
+        <div class="servo-slider-container" id="servoSliderContainer">
+          <div class="servo-slider-label">Manual Servo Control</div>
+          <div class="servo-slider-track">
+            <span style="font-size: 0.85em; color: #64748b">0°</span>
+            <input
+              type="range"
+              min="0"
+              max="180"
+              value="90"
+              class="servo-slider"
+              id="servoSlider"
+            />
+            <span style="font-size: 0.85em; color: #64748b">180°</span>
+          </div>
+          <div class="servo-slider-value" id="manualAngle">90°</div>
+        </div>
+      </div>
     </div>
 
     <script>
       let systemActive = false;
+      let rotationEnabled = true;
       const distanceEl = document.getElementById("distance");
       const statusEl = document.getElementById("status");
       const toggleBtn = document.getElementById("toggleBtn");
+      const rotationToggleBtn = document.getElementById("rotationToggleBtn");
       const currentAngleEl = document.getElementById("currentAngle");
       const targetCountEl = document.getElementById("targetCount");
+      const manualAngleEl = document.getElementById("manualAngle");
+      const servoSlider = document.getElementById("servoSlider");
       const ws = new WebSocket(`ws://${location.hostname}:81/`);
 
       // Radar canvas setup
@@ -586,7 +794,7 @@
         }, 200);
       });
 
-      function updateButtonState(active) {
+      function updateButtonState(active, rotationEnabledState) {
         systemActive = active;
         if (active) {
           toggleBtn.textContent = "Stop System";
@@ -599,6 +807,25 @@
           // Clear targets when system stops
           targets = [];
           targetCountEl.textContent = "0";
+        }
+
+        // Update rotation state if provided
+        if (rotationEnabledState !== undefined) {
+          rotationEnabled = rotationEnabledState;
+        }
+        updateRotationToggle();
+      }
+
+      function updateRotationToggle() {
+        if (rotationEnabled) {
+          rotationToggleBtn.textContent = "Auto Rotation: ON";
+          rotationToggleBtn.className = "rotation-toggle-button enabled";
+          servoSlider.disabled = true;
+        } else {
+          rotationToggleBtn.textContent = "Auto Rotation: OFF";
+          rotationToggleBtn.className = "rotation-toggle-button";
+          // Enable slider when rotation is disabled (can control servo manually)
+          servoSlider.disabled = false;
         }
       }
 
@@ -622,12 +849,13 @@
           ctx.stroke();
         }
 
-        // Draw angle lines (0°, 45°, 90°, 135°, 180°)
+        // Draw angle lines (0°, 45°, 90°, 135°, 180°) - rotated 90° counter-clockwise
         ctx.strokeStyle = "rgba(0, 255, 0, 0.25)";
         ctx.lineWidth = 1;
         const angles = [0, 45, 90, 135, 180];
         angles.forEach((angle) => {
-          const rad = ((angle - 90) * Math.PI) / 180;
+          // Rotate 90° counter-clockwise: subtract 90 from angle
+          const rad = ((angle - 90 - 90) * Math.PI) / 180;
           ctx.beginPath();
           ctx.moveTo(currentCenterX, currentCenterY);
           ctx.lineTo(
@@ -637,13 +865,14 @@
           ctx.stroke();
         });
 
-        // Draw angle labels (responsive font size)
+        // Draw angle labels (responsive font size) - rotated 90° counter-clockwise
         const fontSize = Math.max(10, Math.min(13, currentMaxRadius / 20));
         ctx.font = `bold ${fontSize}px monospace`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         angles.forEach((angle) => {
-          const rad = ((angle - 90) * Math.PI) / 180;
+          // Rotate 90° counter-clockwise: subtract 90 from angle
+          const rad = ((angle - 90 - 90) * Math.PI) / 180;
           const labelOffset =
             currentMaxRadius + Math.max(12, currentMaxRadius / 20);
           const labelX = currentCenterX + Math.cos(rad) * labelOffset;
@@ -690,9 +919,9 @@
           ctx.fillText(distance + "cm", labelX, labelY);
         }
 
-        // Draw sweep line
+        // Draw sweep line - rotated 90° counter-clockwise
         if (systemActive) {
-          const sweepRad = ((sweepAngle - 90) * Math.PI) / 180;
+          const sweepRad = ((sweepAngle - 90 - 90) * Math.PI) / 180;
 
           // Draw sweep arc (trail) - wider and more visible
           ctx.strokeStyle = "rgba(0, 255, 0, 0.15)";
@@ -738,7 +967,8 @@
 
           if (opacity <= 0) return false;
 
-          const angleRad = ((target.angle - 90) * Math.PI) / 180;
+          // Rotate target angle 90° counter-clockwise
+          const angleRad = ((target.angle - 90 - 90) * Math.PI) / 180;
           const distanceRatio = Math.min(target.distance / maxRange, 1);
           const radius = distanceRatio * currentMaxRadius;
 
@@ -817,6 +1047,77 @@
         ws.send(JSON.stringify({ command: "toggle" }));
       });
 
+      rotationToggleBtn.addEventListener("click", () => {
+        ws.send(JSON.stringify({ command: "toggleRotation" }));
+      });
+
+      // Native slider for manual servo control
+      let lastSentAngle = -1; // Track last sent angle to avoid duplicate messages
+      let sendTimeout = null; // Throttle WebSocket messages
+
+      function updateSliderPosition(angle, sendToServer = true) {
+        servoSlider.value = angle;
+        manualAngleEl.textContent = Math.round(angle) + "°";
+
+        // Send to server with throttling (only send if angle changed significantly or after delay)
+        if (sendToServer && !rotationEnabled) {
+          const angleDiff = Math.abs(angle - lastSentAngle);
+
+          // Clear existing timeout
+          if (sendTimeout) {
+            clearTimeout(sendTimeout);
+          }
+
+          // Send immediately if angle changed by more than 2 degrees
+          if (angleDiff > 2) {
+            sendServoPosition(angle);
+            lastSentAngle = angle;
+          } else {
+            // Otherwise throttle to send after 50ms of no movement
+            sendTimeout = setTimeout(() => {
+              if (Math.abs(angle - lastSentAngle) > 0.5) {
+                sendServoPosition(angle);
+                lastSentAngle = angle;
+              }
+            }, 50);
+          }
+        }
+      }
+
+      function sendServoPosition(angle) {
+        // Send servo position to ESP32
+        ws.send(
+          JSON.stringify({
+            command: "setServoPosition",
+            angle: parseFloat(angle),
+          })
+        );
+      }
+
+      // Initialize slider to center position (90°)
+      updateSliderPosition(90, false);
+
+      // Handle slider input (while dragging)
+      servoSlider.addEventListener("input", (e) => {
+        if (!rotationEnabled) {
+          const angle = parseFloat(e.target.value);
+          updateSliderPosition(angle, true);
+        }
+      });
+
+      // Handle slider change (when released)
+      servoSlider.addEventListener("change", (e) => {
+        if (!rotationEnabled) {
+          // Clear any pending timeout and send final position
+          if (sendTimeout) {
+            clearTimeout(sendTimeout);
+          }
+          const angle = parseFloat(e.target.value);
+          sendServoPosition(angle);
+          lastSentAngle = angle;
+        }
+      });
+
       ws.onopen = () => {
         statusEl.textContent = "Connected";
         statusEl.className = "status connected";
@@ -837,7 +1138,7 @@
         try {
           const data = JSON.parse(e.data);
           if (data.type === "state") {
-            updateButtonState(data.active);
+            updateButtonState(data.active, data.rotationEnabled);
           } else if (data.type === "distance") {
             distanceEl.textContent = data.value;
 
@@ -846,6 +1147,13 @@
               currentAngle = data.angle;
               sweepAngle = data.angle;
               currentAngleEl.textContent = Math.round(data.angle) + "°";
+
+              // Update slider position to reflect current servo position
+              // Don't send to server since this is already the server's position
+              if (!rotationEnabled || data.angle !== undefined) {
+                updateSliderPosition(data.angle, false);
+                lastSentAngle = data.angle; // Sync last sent angle
+              }
 
               // Add target if valid reading
               if (data.distance > 0 && data.distance <= maxRange) {

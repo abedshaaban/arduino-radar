@@ -156,15 +156,17 @@ const char htmlPage[] PROGMEM = R"rawliteral(
       }
 
       .status {
-        margin-top: 25px;
-        padding: 12px 20px;
-        border-radius: 12px;
-        font-size: 0.9em;
+        padding: 10px 18px;
+        border-radius: 10px;
+        font-size: 0.85em;
         font-weight: 600;
         display: inline-flex;
         align-items: center;
         gap: 8px;
         transition: all 0.3s ease;
+        width: 100%;
+        max-width: 280px;
+        justify-content: center;
       }
 
       .status::before {
@@ -217,10 +219,17 @@ const char htmlPage[] PROGMEM = R"rawliteral(
         background: #ffc107;
       }
 
+      .header-controls {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 30px;
+      }
+
       .toggle-button {
-        margin-top: 25px;
-        padding: 16px 45px;
-        font-size: 1.15em;
+        padding: 14px 40px;
+        font-size: 1.1em;
         font-weight: 600;
         border: none;
         border-radius: 12px;
@@ -229,6 +238,8 @@ const char htmlPage[] PROGMEM = R"rawliteral(
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
         position: relative;
         overflow: hidden;
+        width: 100%;
+        max-width: 280px;
       }
 
       .toggle-button::before {
@@ -346,6 +357,166 @@ const char htmlPage[] PROGMEM = R"rawliteral(
         margin-top: 2px;
       }
 
+      .servo-control-container {
+        margin: 25px 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .rotation-toggle-button {
+        padding: 12px 30px;
+        font-size: 1em;
+        font-weight: 600;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        color: #475569;
+      }
+
+      .rotation-toggle-button.enabled {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+      }
+
+      .rotation-toggle-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      .rotation-toggle-button.enabled:hover {
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
+      }
+
+      .rotation-toggle-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .servo-slider-container {
+        position: relative;
+        width: 100%;
+        max-width: 400px;
+        margin: 20px 0;
+        padding: 0 10px;
+      }
+
+      .servo-slider-label {
+        text-align: center;
+        margin-bottom: 15px;
+        font-size: 0.9em;
+        color: #64748b;
+        font-weight: 600;
+      }
+
+      .servo-slider {
+        width: 100%;
+        height: 8px;
+        border-radius: 5px;
+        background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        outline: none;
+        -webkit-appearance: none;
+        appearance: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .servo-slider:hover {
+        background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
+      }
+
+      .servo-slider:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      /* Webkit (Chrome, Safari, Edge) */
+      .servo-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        cursor: grab;
+        border: 3px solid white;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        transition: all 0.2s ease;
+      }
+
+      .servo-slider::-webkit-slider-thumb:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
+      }
+
+      .servo-slider::-webkit-slider-thumb:active {
+        cursor: grabbing;
+        transform: scale(1.15);
+      }
+
+      .servo-slider:disabled::-webkit-slider-thumb {
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+
+      /* Firefox */
+      .servo-slider::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        cursor: grab;
+        border: 3px solid white;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        transition: all 0.2s ease;
+      }
+
+      .servo-slider::-moz-range-thumb:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
+      }
+
+      .servo-slider::-moz-range-thumb:active {
+        cursor: grabbing;
+        transform: scale(1.15);
+      }
+
+      .servo-slider:disabled::-moz-range-thumb {
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+
+      .servo-slider-track {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-top: 10px;
+      }
+
+      .servo-slider-value {
+        min-width: 50px;
+        text-align: center;
+        font-weight: 700;
+        color: #1e293b;
+        font-size: 1.1em;
+      }
+
+      @media (max-width: 480px) {
+        .rotation-toggle-button {
+          padding: 10px 25px;
+          font-size: 0.9em;
+        }
+
+        .servo-slider-container {
+          max-width: 100%;
+        }
+      }
+
       @media (max-width: 768px) {
         body {
           padding: 10px;
@@ -406,18 +577,20 @@ const char htmlPage[] PROGMEM = R"rawliteral(
           font-size: 1em;
         }
 
+        .header-controls {
+          margin-bottom: 25px;
+        }
+
         .toggle-button {
-          padding: 14px 35px;
+          padding: 12px 30px;
           font-size: 1em;
-          margin-top: 20px;
-          width: 100%;
-          max-width: 300px;
+          max-width: 100%;
         }
 
         .status {
-          margin-top: 20px;
-          padding: 10px 18px;
-          font-size: 0.85em;
+          padding: 10px 15px;
+          font-size: 0.8em;
+          max-width: 100%;
         }
       }
 
@@ -473,15 +646,21 @@ const char htmlPage[] PROGMEM = R"rawliteral(
           margin-top: 0;
         }
 
+        .header-controls {
+          margin-bottom: 20px;
+          gap: 10px;
+        }
+
         .toggle-button {
-          padding: 12px 30px;
+          padding: 12px 25px;
           font-size: 0.95em;
-          width: 100%;
+          max-width: 100%;
         }
 
         .status {
-          font-size: 0.8em;
-          padding: 10px 15px;
+          font-size: 0.75em;
+          padding: 8px 12px;
+          max-width: 100%;
         }
       }
 
@@ -506,6 +685,14 @@ const char htmlPage[] PROGMEM = R"rawliteral(
     <div class="container">
       <h1>ESP32 Radar</h1>
       <p class="subtitle">Real-time Distance Monitoring</p>
+      
+      <div class="header-controls">
+        <button class="toggle-button inactive" id="toggleBtn">
+          Start System
+        </button>
+        <div class="status connecting" id="status">Connecting...</div>
+      </div>
+
       <div class="distance-display" id="distance">---</div>
 
       <div class="radar-container">
@@ -526,20 +713,41 @@ const char htmlPage[] PROGMEM = R"rawliteral(
         </div>
       </div>
 
-      <button class="toggle-button inactive" id="toggleBtn">
-        Start System
-      </button>
-      <div class="status connecting" id="status">Connecting...</div>
+      <div class="servo-control-container">
+        <button class="rotation-toggle-button enabled" id="rotationToggleBtn">
+          Auto Rotation: ON
+        </button>
+        <div class="servo-slider-container" id="servoSliderContainer">
+          <div class="servo-slider-label">Manual Servo Control</div>
+          <div class="servo-slider-track">
+            <span style="font-size: 0.85em; color: #64748b;">0°</span>
+            <input
+              type="range"
+              min="0"
+              max="180"
+              value="90"
+              class="servo-slider"
+              id="servoSlider"
+            />
+            <span style="font-size: 0.85em; color: #64748b;">180°</span>
+          </div>
+          <div class="servo-slider-value" id="manualAngle">90°</div>
+        </div>
+      </div>
     </div>
 
     <script>
       let systemActive = false;
+      let rotationEnabled = true;
       const distanceEl = document.getElementById("distance");
       const statusEl = document.getElementById("status");
       const toggleBtn = document.getElementById("toggleBtn");
+      const rotationToggleBtn = document.getElementById("rotationToggleBtn");
       const currentAngleEl = document.getElementById("currentAngle");
       const targetCountEl = document.getElementById("targetCount");
-      const ws = new WebSocket(`ws://${location.hostname}:81/`);
+      const manualAngleEl = document.getElementById("manualAngle");
+      const servoSlider = document.getElementById("servoSlider");
+      const ws = new WebSocket("ws://" + location.hostname + ":81/");
 
       // Radar canvas setup
       const canvas = document.getElementById("radarCanvas");
@@ -577,21 +785,21 @@ const char htmlPage[] PROGMEM = R"rawliteral(
 
       // Resize on window resize with debounce
       let resizeTimeout;
-      window.addEventListener("resize", () => {
+      window.addEventListener("resize", function() {
         clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => {
+        resizeTimeout = setTimeout(function() {
           resizeCanvas();
         }, 100);
       });
 
       // Also resize when orientation changes
-      window.addEventListener("orientationchange", () => {
-        setTimeout(() => {
+      window.addEventListener("orientationchange", function() {
+        setTimeout(function() {
           resizeCanvas();
         }, 200);
       });
 
-      function updateButtonState(active) {
+      function updateButtonState(active, rotationEnabledState) {
         systemActive = active;
         if (active) {
           toggleBtn.textContent = "Stop System";
@@ -604,6 +812,25 @@ const char htmlPage[] PROGMEM = R"rawliteral(
           // Clear targets when system stops
           targets = [];
           targetCountEl.textContent = "0";
+        }
+
+        // Update rotation state if provided
+        if (rotationEnabledState !== undefined) {
+          rotationEnabled = rotationEnabledState;
+        }
+        updateRotationToggle();
+      }
+
+      function updateRotationToggle() {
+        if (rotationEnabled) {
+          rotationToggleBtn.textContent = "Auto Rotation: ON";
+          rotationToggleBtn.className = "rotation-toggle-button enabled";
+          servoSlider.disabled = true;
+        } else {
+          rotationToggleBtn.textContent = "Auto Rotation: OFF";
+          rotationToggleBtn.className = "rotation-toggle-button";
+          // Enable slider when rotation is disabled (can control servo manually)
+          servoSlider.disabled = false;
         }
       }
 
@@ -627,12 +854,13 @@ const char htmlPage[] PROGMEM = R"rawliteral(
           ctx.stroke();
         }
 
-        // Draw angle lines (0°, 45°, 90°, 135°, 180°)
+        // Draw angle lines (0°, 45°, 90°, 135°, 180°) - rotated 90° counter-clockwise
         ctx.strokeStyle = "rgba(0, 255, 0, 0.25)";
         ctx.lineWidth = 1;
         const angles = [0, 45, 90, 135, 180];
-        angles.forEach((angle) => {
-          const rad = ((angle - 90) * Math.PI) / 180;
+        angles.forEach(function(angle) {
+          // Rotate 90° counter-clockwise: subtract 90 from angle
+          const rad = ((angle - 90 - 90) * Math.PI) / 180;
           ctx.beginPath();
           ctx.moveTo(currentCenterX, currentCenterY);
           ctx.lineTo(
@@ -642,13 +870,14 @@ const char htmlPage[] PROGMEM = R"rawliteral(
           ctx.stroke();
         });
 
-        // Draw angle labels (responsive font size)
+        // Draw angle labels (responsive font size) - rotated 90° counter-clockwise
         const fontSize = Math.max(10, Math.min(13, currentMaxRadius / 20));
-        ctx.font = `bold ${fontSize}px monospace`;
+        ctx.font = "bold " + fontSize + "px monospace";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        angles.forEach((angle) => {
-          const rad = ((angle - 90) * Math.PI) / 180;
+        angles.forEach(function(angle) {
+          // Rotate 90° counter-clockwise: subtract 90 from angle
+          const rad = ((angle - 90 - 90) * Math.PI) / 180;
           const labelOffset =
             currentMaxRadius + Math.max(12, currentMaxRadius / 20);
           const labelX = currentCenterX + Math.cos(rad) * labelOffset;
@@ -672,7 +901,7 @@ const char htmlPage[] PROGMEM = R"rawliteral(
           8,
           Math.min(11, currentMaxRadius / 25)
         );
-        ctx.font = `bold ${distanceFontSize}px monospace`;
+        ctx.font = "bold " + distanceFontSize + "px monospace";
         ctx.textAlign = "left";
         ctx.textBaseline = "middle";
         for (let i = 1; i <= 4; i++) {
@@ -695,9 +924,9 @@ const char htmlPage[] PROGMEM = R"rawliteral(
           ctx.fillText(distance + "cm", labelX, labelY);
         }
 
-        // Draw sweep line
+        // Draw sweep line - rotated 90° counter-clockwise
         if (systemActive) {
-          const sweepRad = ((sweepAngle - 90) * Math.PI) / 180;
+          const sweepRad = ((sweepAngle - 90 - 90) * Math.PI) / 180;
 
           // Draw sweep arc (trail) - wider and more visible
           ctx.strokeStyle = "rgba(0, 255, 0, 0.15)";
@@ -736,14 +965,15 @@ const char htmlPage[] PROGMEM = R"rawliteral(
 
         // Draw detected targets
         const now = Date.now();
-        targets = targets.filter((target) => {
+        targets = targets.filter(function(target) {
           const age = now - target.timestamp;
           const fadeTime = 5000; // 5 seconds fade time
           const opacity = Math.max(0, 1 - age / fadeTime);
 
           if (opacity <= 0) return false;
 
-          const angleRad = ((target.angle - 90) * Math.PI) / 180;
+          // Rotate target angle 90° counter-clockwise
+          const angleRad = ((target.angle - 90 - 90) * Math.PI) / 180;
           const distanceRatio = Math.min(target.distance / maxRange, 1);
           const radius = distanceRatio * currentMaxRadius;
 
@@ -752,15 +982,15 @@ const char htmlPage[] PROGMEM = R"rawliteral(
 
           // Draw target ring (outer glow)
           const ringGradient = ctx.createRadialGradient(x, y, 0, x, y, 10);
-          ringGradient.addColorStop(0, `rgba(255, 0, 0, ${opacity * 0.3})`);
-          ringGradient.addColorStop(1, `rgba(255, 0, 0, 0)`);
+          ringGradient.addColorStop(0, "rgba(255, 0, 0, " + (opacity * 0.3) + ")");
+          ringGradient.addColorStop(1, "rgba(255, 0, 0, 0)");
           ctx.fillStyle = ringGradient;
           ctx.beginPath();
           ctx.arc(x, y, 10, 0, Math.PI * 2);
           ctx.fill();
 
           // Draw target ring
-          ctx.strokeStyle = `rgba(255, 0, 0, ${opacity * 0.6})`;
+          ctx.strokeStyle = "rgba(255, 0, 0, " + (opacity * 0.6) + ")";
           ctx.lineWidth = 1.5;
           ctx.beginPath();
           ctx.arc(x, y, 9, 0, Math.PI * 2);
@@ -768,15 +998,15 @@ const char htmlPage[] PROGMEM = R"rawliteral(
 
           // Draw target blip (bright center)
           const blipGradient = ctx.createRadialGradient(x, y, 0, x, y, 5);
-          blipGradient.addColorStop(0, `rgba(255, 100, 100, ${opacity})`);
-          blipGradient.addColorStop(1, `rgba(255, 0, 0, ${opacity * 0.7})`);
+          blipGradient.addColorStop(0, "rgba(255, 100, 100, " + opacity + ")");
+          blipGradient.addColorStop(1, "rgba(255, 0, 0, " + (opacity * 0.7) + ")");
           ctx.fillStyle = blipGradient;
           ctx.beginPath();
           ctx.arc(x, y, 5, 0, Math.PI * 2);
           ctx.fill();
 
           // Draw bright center dot
-          ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+          ctx.fillStyle = "rgba(255, 255, 255, " + opacity + ")";
           ctx.beginPath();
           ctx.arc(x, y, 2, 0, Math.PI * 2);
           ctx.fill();
@@ -818,31 +1048,98 @@ const char htmlPage[] PROGMEM = R"rawliteral(
       }
       animate();
 
-      toggleBtn.addEventListener("click", () => {
+      toggleBtn.addEventListener("click", function() {
         ws.send(JSON.stringify({ command: "toggle" }));
       });
 
-      ws.onopen = () => {
+      rotationToggleBtn.addEventListener("click", function() {
+        ws.send(JSON.stringify({ command: "toggleRotation" }));
+      });
+
+      // Native slider for manual servo control
+      let lastSentAngle = -1; // Track last sent angle to avoid duplicate messages
+      let sendTimeout = null; // Throttle WebSocket messages
+
+      function updateSliderPosition(angle, sendToServer) {
+        sendToServer = sendToServer !== undefined ? sendToServer : true;
+        servoSlider.value = angle;
+        manualAngleEl.textContent = Math.round(angle) + "°";
+
+        // Send to server with throttling (only send if angle changed significantly or after delay)
+        if (sendToServer && !rotationEnabled) {
+          const angleDiff = Math.abs(angle - lastSentAngle);
+          
+          // Clear existing timeout
+          if (sendTimeout) {
+            clearTimeout(sendTimeout);
+          }
+
+          // Send immediately if angle changed by more than 2 degrees
+          if (angleDiff > 2) {
+            sendServoPosition(angle);
+            lastSentAngle = angle;
+          } else {
+            // Otherwise throttle to send after 50ms of no movement
+            sendTimeout = setTimeout(function() {
+              if (Math.abs(angle - lastSentAngle) > 0.5) {
+                sendServoPosition(angle);
+                lastSentAngle = angle;
+              }
+            }, 50);
+          }
+        }
+      }
+
+      function sendServoPosition(angle) {
+        // Send servo position to ESP32
+        ws.send(JSON.stringify({ command: "setServoPosition", angle: parseFloat(angle) }));
+      }
+
+      // Initialize slider to center position (90°)
+      updateSliderPosition(90, false);
+
+      // Handle slider input (while dragging)
+      servoSlider.addEventListener("input", function(e) {
+        if (!rotationEnabled) {
+          const angle = parseFloat(e.target.value);
+          updateSliderPosition(angle, true);
+        }
+      });
+
+      // Handle slider change (when released)
+      servoSlider.addEventListener("change", function(e) {
+        if (!rotationEnabled) {
+          // Clear any pending timeout and send final position
+          if (sendTimeout) {
+            clearTimeout(sendTimeout);
+          }
+          const angle = parseFloat(e.target.value);
+          sendServoPosition(angle);
+          lastSentAngle = angle;
+        }
+      });
+
+      ws.onopen = function() {
         statusEl.textContent = "Connected";
         statusEl.className = "status connected";
         // State will be sent automatically by server on connection
       };
 
-      ws.onclose = () => {
+      ws.onclose = function() {
         statusEl.textContent = "Disconnected";
         statusEl.className = "status disconnected";
       };
 
-      ws.onerror = () => {
+      ws.onerror = function() {
         statusEl.textContent = "Connection Error";
         statusEl.className = "status disconnected";
       };
 
-      ws.onmessage = (e) => {
+      ws.onmessage = function(e) {
         try {
           const data = JSON.parse(e.data);
           if (data.type === "state") {
-            updateButtonState(data.active);
+            updateButtonState(data.active, data.rotationEnabled);
           } else if (data.type === "distance") {
             distanceEl.textContent = data.value;
 
@@ -851,6 +1148,13 @@ const char htmlPage[] PROGMEM = R"rawliteral(
               currentAngle = data.angle;
               sweepAngle = data.angle;
               currentAngleEl.textContent = Math.round(data.angle) + "°";
+
+              // Update slider position to reflect current servo position
+              // Don't send to server since this is already the server's position
+              if (!rotationEnabled || data.angle !== undefined) {
+                updateSliderPosition(data.angle, false);
+                lastSentAngle = data.angle; // Sync last sent angle
+              }
 
               // Add target if valid reading
               if (data.distance > 0 && data.distance <= maxRange) {
@@ -871,4 +1175,3 @@ const char htmlPage[] PROGMEM = R"rawliteral(
   </body>
 </html>
 )rawliteral";
-
