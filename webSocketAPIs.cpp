@@ -16,8 +16,11 @@ static void handleRoot() {
 
 static void sendState(uint8_t num) {
   bool active = getSystemState();
+  bool rotationEnabled = getServoRotationEnabled();
   String response = "{\"type\":\"state\",\"active\":";
   response += active ? "true" : "false";
+  response += ",\"rotationEnabled\":";
+  response += rotationEnabled ? "true" : "false";
   response += "}";
   ws.sendTXT(num, response);
 }
@@ -48,6 +51,19 @@ static void onWsEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t len) 
       if (strcmp(cmd, "toggle") == 0) {
         toggleSystemState();
         sendState(num);
+      } else if (strcmp(cmd, "toggleRotation") == 0) {
+        toggleServoRotation();
+        sendState(num);
+      } else if (strcmp(cmd, "setServoPosition") == 0) {
+        if (doc.containsKey("angle")) {
+          float angle = doc["angle"];
+          setServoPosition(angle);
+          // Broadcast updated position and state
+          sendState(num);
+          // Also broadcast a distance update with current position (even if system inactive)
+          // This ensures the radar display updates when manually positioning
+          broadcastDistance(-1, angle); // -1 means no distance reading, just position update
+        }
       } else if (strcmp(cmd, "getState") == 0) {
         sendState(num);
       }
