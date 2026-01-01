@@ -5,11 +5,13 @@ A real-time distance monitoring system built with ESP32 that uses an ultrasonic 
 ## Features
 
 - **Real-time Distance Monitoring**: Continuous distance measurements using HC-SR04 ultrasonic sensor
+- **Radar Dashboard**: Visual radar display showing detected targets with angle and distance
 - **Servo Scanning**: Automatic 180-degree servo rotation for scanning
 - **Web Interface**: Beautiful, responsive web UI accessible via WiFi
 - **WebSocket Communication**: Real-time bidirectional communication between ESP32 and web client
 - **System Control**: Start/stop the radar system remotely via web interface
 - **WiFi Access Point**: Creates its own WiFi network for easy connection
+- **Target Tracking**: Detected targets are plotted on the radar screen and fade over time
 
 ## Hardware Requirements
 
@@ -117,8 +119,14 @@ radar/
 2. **Web Interface**: Users connect to the WiFi network and access the web interface
 3. **System Control**: The web interface communicates with ESP32 via WebSocket to start/stop the system
 4. **Scanning**: When active, the servo rotates continuously from 0° to 180° and back
-5. **Distance Measurement**: Every 300ms, the ultrasonic sensor measures distance
-6. **Real-time Updates**: Distance readings are broadcast to all connected web clients via WebSocket
+5. **Distance Measurement**: Every 300ms, the ultrasonic sensor measures distance at the current servo angle
+6. **Real-time Updates**: Distance readings and servo angles are broadcast to all connected web clients via WebSocket
+7. **Radar Visualization**: The web interface displays a radar screen showing:
+   - Current scan angle with a sweep line
+   - Distance rings (50cm, 100cm, 150cm, 200cm)
+   - Angle markers (0°, 45°, 90°, 135°, 180°)
+   - Detected targets plotted as red blips at their angle and distance
+   - Targets fade over 5 seconds to show scan history
 
 ## License
 
